@@ -1,3 +1,5 @@
+ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD';
+
 DROP TABLE wrogowie_kocurow;
 DROP TABLE wrogowie;
 ALTER TABLE bandy
