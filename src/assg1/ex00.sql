@@ -1,9 +1,10 @@
-ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD';
+ALTER SESSION
+  SET NLS_DATE_FORMAT = 'YYYY-MM-DD';
 
 DROP TABLE wrogowie_kocurow;
 DROP TABLE wrogowie;
 ALTER TABLE bandy
-    DROP CONSTRAINT ban_koc_pseudo_fk;
+ DROP CONSTRAINT ban_koc_pseudo_fk;
 DROP TABLE kocury;
 DROP TABLE bandy;
 DROP TABLE funkcje;
