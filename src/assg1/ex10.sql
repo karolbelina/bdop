@@ -10,5 +10,5 @@ SELECT CASE
        ELSE szef || ' - nieunikalny'
        END AS "Unikalnosc atr. SZEF"
   FROM kocury
- GROUP BY szef
-HAVING szef IS NOT NULL; -- szef is nullable
+ WHERE szef IS NOT NULL -- szef is nullable
+ GROUP BY szef;
