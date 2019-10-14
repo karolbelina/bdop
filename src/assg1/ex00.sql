@@ -73,14 +73,20 @@ CREATE TABLE wrogowie_kocurow (
     CONSTRAINT wrk_pk PRIMARY KEY (pseudo, imie_wroga)
 );
 
-  ALTER TABLE kocury
-DISABLE CONSTRAINT koc_fun_funkcja_fk;
+  ALTER TABLE bandy
+DISABLE CONSTRAINT ban_koc_pseudo_fk;
+
+INSERT ALL
+  INTO bandy VALUES (1, 'SZEFOSTWO',       'CALOSC',  'TYGRYS')
+  INTO bandy VALUES (2, 'CZARNI RYCERZE',  'POLE',    'LYSY'  )
+  INTO bandy VALUES (3, 'BIALI LOWCY',     'SAD',     'ZOMBI' )
+  INTO bandy VALUES (4, 'LACIACI MYSLIWI', 'GORKA',   'RAFA'  )
+  INTO bandy VALUES (5, 'ROCKERSI',        'ZAGRODA', NULL    )
+SELECT * FROM DUAL;
 
   ALTER TABLE kocury
+DISABLE CONSTRAINT koc_fun_funkcja_fk
 DISABLE CONSTRAINT koc_koc_pseudo_fk;
-
-  ALTER TABLE kocury
-DISABLE CONSTRAINT koc_ban_nr_bandy_fk;
 
 INSERT ALL
   INTO kocury VALUES ('JACEK',   'M', 'PLACEK',   'LOWCZY',   'LYSY',   '2008-12-01', 67, NULL, 2)
@@ -103,18 +109,11 @@ INSERT ALL
   INTO kocury VALUES ('MELA',    'D', 'DAMA',     'LAPACZ',   'RAFA',   '2008-11-01', 51, NULL, 4)
 SELECT * FROM DUAL;
 
- ALTER TABLE kocury
-ENABLE CONSTRAINT koc_koc_pseudo_fk;
-
-INSERT ALL
-  INTO bandy VALUES (1, 'SZEFOSTWO',       'CALOSC',  'TYGRYS')
-  INTO bandy VALUES (2, 'CZARNI RYCERZE',  'POLE',    'LYSY'  )
-  INTO bandy VALUES (3, 'BIALI LOWCY',     'SAD',     'ZOMBI' )
-  INTO bandy VALUES (4, 'LACIACI MYSLIWI', 'GORKA',   'RAFA'  )
-  INTO bandy VALUES (5, 'ROCKERSI',        'ZAGRODA', NULL    )
-SELECT * FROM DUAL;
+ ALTER TABLE bandy
+ENABLE CONSTRAINT ban_koc_pseudo_fk;
 
  ALTER TABLE kocury
+ENABLE CONSTRAINT koc_koc_pseudo_fk
 ENABLE CONSTRAINT koc_ban_nr_bandy_fk;
 
 INSERT ALL
