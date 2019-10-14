@@ -58,6 +58,10 @@ CREATE TABLE kocury (
                     CONSTRAINT koc_ban_nr_bandy_fk REFERENCES bandy(nr_bandy)
 );
 
+-- circular reference workaround
+ALTER TABLE bandy
+  ADD CONSTRAINT ban_koc_pseudo_fk FOREIGN KEY (szef_bandy) REFERENCES kocury(pseudo);
+
 CREATE TABLE wrogowie_kocurow (
     pseudo         VARCHAR2(15)
                    CONSTRAINT wrk_koc_pseudo_fk REFERENCES kocury(pseudo),
@@ -68,6 +72,9 @@ CREATE TABLE wrogowie_kocurow (
     opis_incydentu VARCHAR2(50),
     CONSTRAINT wrk_pk PRIMARY KEY (pseudo, imie_wroga)
 );
+
+  ALTER TABLE bandy
+DISABLE CONSTRAINT ban_koc_pseudo_fk;
 
 INSERT ALL
   INTO bandy VALUES (1, 'SZEFOSTWO',       'CALOSC',  'TYGRYS')
@@ -143,6 +150,7 @@ INSERT ALL
   INTO wrogowie_kocurow VALUES ('UCHO',     'SWAWOLNY DYZIO', '2011-07-14', 'OBRZUCIL KAMIENIAMI'                      )
 SELECT * FROM DUAL;
 
--- circular reference workaround
-ALTER TABLE bandy
-ADD CONSTRAINT ban_koc_pseudo_fk FOREIGN KEY (szef_bandy) REFERENCES kocury(pseudo);
+ ALTER TABLE bandy
+ENABLE CONSTRAINT ban_koc_pseudo_fk;
+
+COMMIT;
