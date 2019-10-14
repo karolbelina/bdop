@@ -1,4 +1,6 @@
- SELECT LPAD(imie, (level - 1) * 4 + LENGTH(imie)) AS "Hierarchia",
+ SELECT LPAD(level || LPAD(imie, 16 + LENGTH(imie)),
+             (level - 1) * 4 + LENGTH(level || LPAD(imie, 16 + LENGTH(imie))),
+             '===>') AS "Hierarchia",
         CASE
         WHEN szef IS NULL THEN 'Sam sobie panem'
         ELSE szef
