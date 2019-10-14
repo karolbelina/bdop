@@ -1,5 +1,5 @@
 SELECT imie AS "IMIE", w_stadku_od AS "W stadku",
-       przydzial_myszy - FLOOR(przydzial_myszy * 0.1) AS "Zjadal",
+       FLOOR(przydzial_myszy / 1.1) AS "Zjadal",
        ADD_MONTHS(w_stadku_od, 6) AS "Podwyzka",
        przydzial_myszy AS "Zjada"
   FROM kocury
