@@ -1,10 +1,7 @@
- SELECT LPAD(level || LPAD(imie, 16 + LENGTH(imie)),
-             (level - 1) * 4 + LENGTH(level || LPAD(imie, 16 + LENGTH(imie))),
+ SELECT LPAD((level - 1) || LPAD(imie, 16 + LENGTH(imie)),
+             (level - 1) * 4 + LENGTH((level - 1) || LPAD(imie, 16 + LENGTH(imie))),
              '===>') AS "Hierarchia",
-        CASE
-        WHEN szef IS NULL THEN 'Sam sobie panem'
-        ELSE szef
-        END AS "Pseudo szefa",
+        NVL(szef, 'Sam sobie panem') AS "Pseudo szefa",
         funkcja AS "Funkcja"
    FROM kocury
   WHERE myszy_extra IS NOT NULL
