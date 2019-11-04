@@ -6,7 +6,9 @@ SELECT imie AS "IMIE", w_stadku_od || '     ' AS "WSTAPIL DO STADKA", '' AS " "
                            (SELECT MAX(w_stadku_od)
                               FROM kocury
                              WHERE k1.nr_bandy = nr_bandy))
- UNION
+
+ UNION ALL
+
 SELECT imie AS "IMIE", w_stadku_od || ' <---' AS "WSTAPIL DO STADKA",
        'NAJMLODSZY STAZEM W BANDZIE ' || nazwa AS " "
   FROM kocury k1
@@ -15,7 +17,9 @@ SELECT imie AS "IMIE", w_stadku_od || ' <---' AS "WSTAPIL DO STADKA",
  WHERE w_stadku_od = (SELECT MAX(w_stadku_od)
                         FROM kocury
                        WHERE k1.nr_bandy = nr_bandy)
- UNION
+
+ UNION ALL
+ 
 SELECT imie AS "IMIE", w_stadku_od || ' <---' AS "WSTAPIL DO STADKA",
        'NAJSTARSZY STAZEM W BANDZIE ' || nazwa AS " "
   FROM kocury k1

@@ -9,7 +9,9 @@ SELECT pseudo AS "Pseudonim", plec AS "Plec",
                            WHERE nazwa = 'LACIACI MYSLIWI'
                            ORDER BY w_stadku_od)
                    WHERE ROWNUM <= 3
-                   UNION
+
+                   UNION ALL
+
                   SELECT pseudo
                     FROM (SELECT pseudo
                             FROM kocury k
@@ -36,7 +38,9 @@ UPDATE kocury k1
                            WHERE nazwa = 'LACIACI MYSLIWI'
                            ORDER BY w_stadku_od)
                    WHERE ROWNUM <= 3
-                   UNION
+
+                   UNION ALL
+
                   SELECT pseudo
                     FROM (SELECT pseudo
                             FROM kocury k
@@ -57,7 +61,9 @@ SELECT pseudo AS "Pseudonim", plec AS "Plec",
                            WHERE nazwa = 'LACIACI MYSLIWI'
                            ORDER BY w_stadku_od)
                    WHERE ROWNUM <= 3
-                   UNION
+
+                   UNION ALL
+
                   SELECT pseudo
                     FROM (SELECT pseudo
                             FROM kocury k

@@ -24,7 +24,9 @@ SELECT DECODE(plec, 'M', ' ', nazwa) AS "NAZWA BANDY",
                JOIN bandy
                USING (nr_bandy)
          GROUP BY nazwa, plec
-         UNION
+
+         UNION ALL
+
         SELECT 'Z----------------' AS nazwa,
                '------' AS plec,
                '----' AS ile,
@@ -37,7 +39,9 @@ SELECT DECODE(plec, 'M', ' ', nazwa) AS "NAZWA BANDY",
                '---------' AS dzielczy,
                '-------' AS suma
           FROM DUAL
-         UNION
+
+         UNION ALL
+
         SELECT 'ZJADA RAZEM' AS nazwa,
                '' AS plec,
                '' AS ile,
@@ -79,7 +83,9 @@ SELECT DECODE(plec, 'M', ' ', nazwa) AS "NAZWA BANDY",
                   FROM kocury
                        JOIN bandy
                        USING (nr_bandy)
-                 UNION
+
+                 UNION ALL
+
                 SELECT nazwa, plec, 'SUMA' AS funkcja,
                        SUM(NVL(przydzial_myszy, 0) + NVL(myszy_extra, 0)) AS przydzial
                   FROM kocury
@@ -101,7 +107,9 @@ SELECT DECODE(plec, 'M', ' ', nazwa) AS "NAZWA BANDY",
                                 'MILUSIA'  AS milusia,
                                 'DZIELCZY' AS dzielczy,
                                 'SUMA' AS suma))
-         UNION
+
+         UNION ALL
+
         SELECT 'Z----------------' AS nazwa,
                 '------' AS plec,
                 '----' AS ile,
@@ -114,7 +122,9 @@ SELECT DECODE(plec, 'M', ' ', nazwa) AS "NAZWA BANDY",
                 '---------' AS dzielczy,
                 '-------' AS suma
             FROM DUAL
-         UNION
+
+         UNION ALL
+
         SELECT nazwa, plec, ile,
                TO_CHAR(NVL(szefunio, 0)) AS szefunio,
                TO_CHAR(NVL(bandzior, 0)) AS bandzior,
@@ -127,7 +137,9 @@ SELECT DECODE(plec, 'M', ' ', nazwa) AS "NAZWA BANDY",
           FROM (SELECT 'ZJADA RAZEM' AS nazwa, '' AS plec, '' AS ile, funkcja,
                        NVL(przydzial_myszy, 0) + NVL(myszy_extra, 0) AS przydzial
                   FROM kocury
-                 UNION
+
+                 UNION ALL
+
                 SELECT 'ZJADA RAZEM' AS nazwa, '' AS plec, '' AS ile, 'SUMA' AS funkcja,
                        SUM(NVL(przydzial_myszy, 0) + NVL(myszy_extra, 0)) AS przydzial
                   FROM kocury)

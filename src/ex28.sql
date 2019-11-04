@@ -13,7 +13,9 @@ HAVING COUNT(*) IN ((SELECT MIN(COUNT(*))
                      HAVING COUNT(*) < (SELECT AVG(COUNT(*))
                                           FROM kocury
                                          GROUP BY EXTRACT(YEAR FROM w_stadku_od))))
- UNION
+
+ UNION ALL
+
 SELECT 'Srednia' AS "ROK", AVG(COUNT(*)) AS "LICZBA WSTAPIEN"
   FROM kocury
  GROUP BY EXTRACT(YEAR FROM w_stadku_od)
