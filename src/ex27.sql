@@ -14,12 +14,12 @@ SELECT pseudo AS "PSEUDO", NVL(przydzial_myszy, 0) + NVL(myszy_extra, 0) AS "ZJA
                  ORDER BY przydzial DESC)
          WHERE ROWNUM <= 7 /* n */);
 
-SELECT k1.pseudo AS "PSEUDO", NVL(k1.przydzial_myszy, 0) + NVL(k1.myszy_extra, 0) AS "ZJADA"
+SELECT k1.pseudo AS "PSEUDO", MIN(NVL(k1.przydzial_myszy, 0) + NVL(k1.myszy_extra, 0)) AS "ZJADA"
   FROM kocury k1
        JOIN kocury k2
        ON NVL(k1.przydzial_myszy, 0) + NVL(k1.myszy_extra, 0) <= NVL(k2.przydzial_myszy, 0) + NVL(k2.myszy_extra, 0)
- GROUP BY k1.pseudo, NVL(k1.przydzial_myszy, 0) + NVL(k1.myszy_extra, 0)
-HAVING COUNT(DISTINCT NVL(k2.przydzial_myszy, 0) + NVL(k2.myszy_extra, 0)) <= 7;
+ GROUP BY k1.pseudo
+HAVING COUNT(DISTINCT NVL(k2.przydzial_myszy, 0) + NVL(k2.myszy_extra, 0)) <= 7 /* n */;
 
 SELECT pseudo AS "PSEUDO", przydzial AS "ZJADA"
   FROM (SELECT pseudo, NVL(przydzial_myszy, 0) + NVL(myszy_extra, 0) AS przydzial,
