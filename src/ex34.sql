@@ -1,13 +1,14 @@
 DECLARE
-  nazwa_funkcji funkcje.funkcja%TYPE := '&funkcja';
+  wybrana_funkcja funkcje.funkcja%TYPE := '&funkcja';
   liczba NUMBER;
 BEGIN
-  SELECT COUNT(*) INTO liczba
+  SELECT COUNT(*)
+    INTO liczba
     FROM kocury
-   WHERE funkcja = UPPER(nazwa_funkcji);
+   WHERE funkcja = UPPER(wybrana_funkcja);
   
   IF liczba > 0 THEN
-    DBMS_OUTPUT.PUT_LINE('Znaleziono kota pelniacego funkcje ' || UPPER(nazwa_funkcji));
+    DBMS_OUTPUT.PUT_LINE('Znaleziono kota pelniacego funkcje ' || UPPER(wybrana_funkcja));
   ELSE
     DBMS_OUTPUT.PUT_LINE('Brak kotow');
   END IF;
