@@ -10,52 +10,52 @@ DROP TABLE bandy;
 DROP TABLE funkcje;
 
 CREATE TABLE bandy (
-    nr_bandy   NUMBER(2)
-               CONSTRAINT ban_pk PRIMARY KEY,
-    nazwa      VARCHAR2(20)
-               CONSTRAINT ban_nazwa_nn NOT NULL,
-    teren      VARCHAR2(15)
-               CONSTRAINT ban_nazwa_uq UNIQUE,
-    szef_bandy VARCHAR2(15)
-               CONSTRAINT ban_szef_bandy_uq UNIQUE
+  nr_bandy   NUMBER(2)
+              CONSTRAINT ban_pk PRIMARY KEY,
+  nazwa      VARCHAR2(20)
+              CONSTRAINT ban_nazwa_nn NOT NULL,
+  teren      VARCHAR2(15)
+              CONSTRAINT ban_nazwa_uq UNIQUE,
+  szef_bandy VARCHAR2(15)
+              CONSTRAINT ban_szef_bandy_uq UNIQUE
 );
 
 CREATE TABLE funkcje (
-    funkcja   VARCHAR2(10)
-              CONSTRAINT fun_pk PRIMARY KEY,
-    min_myszy NUMBER(3)
-              CONSTRAINT fun_min_myszy_ch CHECK(min_myszy > 5),
-    max_myszy NUMBER(3)
-              CONSTRAINT fun_max_myszy_upper_ch CHECK(max_myszy < 200),
-    CONSTRAINT fun_max_myszy_lower_ch CHECK(max_myszy >= min_myszy)
+  funkcja   VARCHAR2(10)
+            CONSTRAINT fun_pk PRIMARY KEY,
+  min_myszy NUMBER(3)
+            CONSTRAINT fun_min_myszy_ch CHECK(min_myszy > 5),
+  max_myszy NUMBER(3)
+            CONSTRAINT fun_max_myszy_upper_ch CHECK(max_myszy < 200),
+  CONSTRAINT fun_max_myszy_lower_ch CHECK(max_myszy >= min_myszy)
 );
 
 CREATE TABLE wrogowie (
-    imie_wroga       VARCHAR2(15)
-                     CONSTRAINT wro_pk PRIMARY KEY,
-    stopien_wrogosci NUMBER(2)
-                     CONSTRAINT wro_stopien_wrogosci_ch CHECK(stopien_wrogosci BETWEEN 1 AND 10),
-    gatunek          VARCHAR2(15),
-    lapowka          VARCHAR2(20)
+  imie_wroga       VARCHAR2(15)
+                    CONSTRAINT wro_pk PRIMARY KEY,
+  stopien_wrogosci NUMBER(2)
+                    CONSTRAINT wro_stopien_wrogosci_ch CHECK(stopien_wrogosci BETWEEN 1 AND 10),
+  gatunek          VARCHAR2(15),
+  lapowka          VARCHAR2(20)
 );
 
 CREATE TABLE kocury (
-    imie            VARCHAR2(15)
-                    CONSTRAINT koc_imie_nn NOT NULL,
-    plec            VARCHAR2(1)
-                    CONSTRAINT koc_plec_ch CHECK(plec IN ('M', 'D')),
-    pseudo          VARCHAR2(15)
-                    CONSTRAINT koc_pk PRIMARY KEY,
-    funkcja         VARCHAR2(10)
-                    CONSTRAINT koc_fun_funkcja_fk REFERENCES funkcje(funkcja),
-    szef            VARCHAR2(15)
-                    CONSTRAINT koc_koc_pseudo_fk REFERENCES kocury(pseudo),
-    w_stadku_od     DATE
-                    DEFAULT SYSDATE,
-    przydzial_myszy NUMBER(3),
-    myszy_extra     NUMBER(3),
-    nr_bandy        NUMBER(3)
-                    CONSTRAINT koc_ban_nr_bandy_fk REFERENCES bandy(nr_bandy)
+  imie            VARCHAR2(15)
+                  CONSTRAINT koc_imie_nn NOT NULL,
+  plec            VARCHAR2(1)
+                  CONSTRAINT koc_plec_ch CHECK(plec IN ('M', 'D')),
+  pseudo          VARCHAR2(15)
+                  CONSTRAINT koc_pk PRIMARY KEY,
+  funkcja         VARCHAR2(10)
+                  CONSTRAINT koc_fun_funkcja_fk REFERENCES funkcje(funkcja),
+  szef            VARCHAR2(15)
+                  CONSTRAINT koc_koc_pseudo_fk REFERENCES kocury(pseudo),
+  w_stadku_od     DATE
+                  DEFAULT SYSDATE,
+  przydzial_myszy NUMBER(3),
+  myszy_extra     NUMBER(3),
+  nr_bandy        NUMBER(3)
+                  CONSTRAINT koc_ban_nr_bandy_fk REFERENCES bandy(nr_bandy)
 );
 
 -- circular reference workaround
@@ -63,14 +63,14 @@ ALTER TABLE bandy
   ADD CONSTRAINT ban_koc_pseudo_fk FOREIGN KEY (szef_bandy) REFERENCES kocury(pseudo);
 
 CREATE TABLE wrogowie_kocurow (
-    pseudo         VARCHAR2(15)
-                   CONSTRAINT wrk_koc_pseudo_fk REFERENCES kocury(pseudo),
-    imie_wroga     VARCHAR2(15)
-                   CONSTRAINT wrk_wro_imie_wroga_fk REFERENCES wrogowie(imie_wroga),
-    data_incydentu DATE
-                   CONSTRAINT wrk_data_incydentu_nn NOT NULL,
-    opis_incydentu VARCHAR2(50),
-    CONSTRAINT wrk_pk PRIMARY KEY (pseudo, imie_wroga)
+  pseudo         VARCHAR2(15)
+                  CONSTRAINT wrk_koc_pseudo_fk REFERENCES kocury(pseudo),
+  imie_wroga     VARCHAR2(15)
+                  CONSTRAINT wrk_wro_imie_wroga_fk REFERENCES wrogowie(imie_wroga),
+  data_incydentu DATE
+                  CONSTRAINT wrk_data_incydentu_nn NOT NULL,
+  opis_incydentu VARCHAR2(50),
+  CONSTRAINT wrk_pk PRIMARY KEY (pseudo, imie_wroga)
 );
 
   ALTER TABLE bandy
