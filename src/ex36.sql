@@ -1,6 +1,8 @@
 DECLARE
-  CURSOR do_zmiany IS SELECT pseudo, przydzial_myszy, funkcja
+  CURSOR do_zmiany IS SELECT pseudo, przydzial_myszy, kocury.funkcja, max_myszy
                         FROM kocury
+                             JOIN funkcje
+                             ON funkcje.funkcja = kocury.funkcja
                        ORDER BY przydzial_myszy
   FOR UPDATE OF przydzial_myszy;
   kocur do_zmiany%ROWTYPE;
@@ -19,12 +21,7 @@ BEGIN
       FETCH do_zmiany INTO kocur;
       EXIT WHEN do_zmiany%NOTFOUND;
 
-      SELECT max_myszy
-        INTO max_przydzial
-        FROM funkcje
-       WHERE funkcja = kocur.funkcja;
-
-      podwyzka := LEAST(ROUND(1.1 * kocur.przydzial_myszy), max_przydzial) - kocur.przydzial_myszy;
+      podwyzka := LEAST(ROUND(1.1 * kocur.przydzial_myszy), kocur.max_myszy) - kocur.przydzial_myszy;
 
       IF podwyzka > 0 THEN -- can be rounded down to zero
         UPDATE kocury
