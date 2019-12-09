@@ -40,7 +40,7 @@ BEGIN
 
     COMMIT;
 
-    RAISE_APPLICATION_ERROR(-20001,'Dana wartosc jest za duza lub za mala. Nie wykonano zmian.');
+    RAISE_APPLICATION_ERROR(-20001, 'Dana wartosc jest za duza lub za mala. Nie wykonano zmian.');
   END IF;
 END;
 

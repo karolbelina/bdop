@@ -20,14 +20,14 @@ BEGIN
       EXECUTE IMMEDIATE 'DECLARE
                           CURSOR milusie IS SELECT pseudo
                                               FROM kocury
-                                              WHERE funkcja = ''MILUSIA'';
-                        BEGIN
-                          FOR milusia IN milusie
-                          LOOP
-                            INSERT INTO dodatki_extra (pseudo, dodatek_extra)
-                            VALUES (milusia.pseudo, -10);
-                          END LOOP;
-                        END;';
+                                             WHERE funkcja = ''MILUSIA'';
+                         BEGIN
+                           FOR milusia IN milusie
+                           LOOP
+                             INSERT INTO dodatki_extra (pseudo, dodatek_extra)
+                             VALUES (milusia.pseudo, -10);
+                           END LOOP;
+                         END;';
 
       COMMIT;
     END IF;
@@ -41,5 +41,4 @@ UPDATE kocury
 ROLLBACK;
 
 DROP TRIGGER check_extra;
-
 DROP TABLE dodatki_extra;
