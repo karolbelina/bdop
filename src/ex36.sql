@@ -7,7 +7,7 @@ DECLARE
   FOR UPDATE OF przydzial_myszy;
   kocur do_zmiany%ROWTYPE;
   liczba_zmian NUMBER := 0;
-  suma_przydzialow NUMBER := 0;
+  suma_przydzialow NUMBER;
   max_przydzial NUMBER;
   podwyzka NUMBER;
 BEGIN
