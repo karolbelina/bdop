@@ -1,8 +1,8 @@
-DROP TABLE OBJ_KOCURY;
-DROP TABLE PLEBS;
-DROP TABLE ELITA;
-DROP TABLE KONTA;
-DROP TABLE INCYDENTY;
+DROP TABLE obj_kocury;
+DROP TABLE plebs;
+DROP TABLE elita;
+DROP TABLE konta;
+DROP TABLE incydenty;
 DROP TYPE BODY KONTO;
 DROP TYPE KONTO;
 DROP TYPE BODY INCYDENT;
@@ -63,12 +63,12 @@ AS
 END;
 /
 
-CREATE TABLE OBJ_KOCURY OF KOCUR (
+CREATE TABLE obj_kocury OF KOCUR (
   imie        CONSTRAINT oko_imie_nn NOT NULL,
   plec        CONSTRAINT oko_plec_ch CHECK(plec IN ('M', 'D')),
   pseudo      CONSTRAINT oko_pk PRIMARY KEY,
   funkcja     CONSTRAINT oko_fun_funkcja_fk REFERENCES funkcje(funkcja),
-  szef        SCOPE IS OBJ_KOCURY,
+  szef        SCOPE IS obj_kocury,
   w_stadku_od DEFAULT SYSDATE,
   nr_bandy    CONSTRAINT oko_ban_nr_bandy_fk REFERENCES bandy(nr_bandy)
 );
@@ -97,12 +97,12 @@ AS
 END;
 /
 
-CREATE TABLE PLEBS OF CZLONEK_PLEBSU (
+CREATE TABLE plebs OF CZLONEK_PLEBSU (
   imie        CONSTRAINT ple_imie_nn NOT NULL,
   plec        CONSTRAINT ple_plec_ch CHECK(plec IN ('M', 'D')),
   pseudo      CONSTRAINT ple_pk PRIMARY KEY,
   funkcja     CONSTRAINT ple_fun_funkcja_fk REFERENCES funkcje(funkcja),
-  szef        SCOPE IS OBJ_KOCURY,
+  szef        SCOPE IS obj_kocury,
   w_stadku_od DEFAULT SYSDATE,
   nr_bandy    CONSTRAINT ple_ban_nr_bandy_fk REFERENCES bandy(nr_bandy)
 );
@@ -133,15 +133,15 @@ AS
 END;
 /
 
-CREATE TABLE ELITA OF CZLONEK_ELITY (
+CREATE TABLE elita OF CZLONEK_ELITY (
   imie        CONSTRAINT eli_imie_nn NOT NULL,
   plec        CONSTRAINT eli_plec_ch CHECK(plec IN ('M', 'D')),
   pseudo      CONSTRAINT eli_pk PRIMARY KEY,
   funkcja     CONSTRAINT eli_fun_funkcja_fk REFERENCES funkcje(funkcja),
-  szef        SCOPE IS OBJ_KOCURY,
+  szef        SCOPE IS obj_kocury,
   w_stadku_od DEFAULT SYSDATE,
   nr_bandy    CONSTRAINT eli_ban_nr_bandy_fk REFERENCES bandy(nr_bandy),
-  sluga       SCOPE IS PLEBS
+  sluga       SCOPE IS plebs
 );
 /
 
@@ -175,9 +175,9 @@ AS
 END;
 /
 
-CREATE TABLE KONTA OF KONTO (
+CREATE TABLE konta OF KONTO (
   nr_konta           CONSTRAINT kon_pk PRIMARY KEY,
-  wlasciciel         SCOPE IS ELITA
+  wlasciciel         SCOPE IS elita
                      CONSTRAINT kon_wlasciciel_nn NOT NULL,
   data_dodania_myszy CONSTRAINT kon_data_dodania_myszy_nn NOT NULL,
   CONSTRAINT kon_dates_ch CHECK(data_usuniecia_myszy >= data_dodania_myszy)
@@ -205,7 +205,7 @@ CREATE OR REPLACE TYPE BODY INCYDENT AS
 END;
 /
 
-CREATE TABLE INCYDENTY OF INCYDENT (
+CREATE TABLE incydenty OF INCYDENT (
   nr_incydentu       CONSTRAINT inc_pk PRIMARY KEY,
   imie_wroga         CONSTRAINT inc_wro_imie_wroga_fk REFERENCES wrogowie(imie_wroga),
   data_incydentu     CONSTRAINT inc_data_incydentu_nn NOT NULL
