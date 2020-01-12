@@ -20,7 +20,7 @@ CREATE OR REPLACE TYPE KOCUR AS OBJECT (
   plec            VARCHAR2(1),
   pseudo          VARCHAR2(15),
   funkcja         VARCHAR2(10),
-  SZEF            REF KOCUR,
+  szef            REF KOCUR,
   w_stadku_od     DATE,
   przydzial_myszy NUMBER(3),
   myszy_extra     NUMBER(3),
@@ -187,7 +187,7 @@ CREATE TABLE konta OF KONTO (
 
 CREATE OR REPLACE TYPE INCYDENT AS OBJECT (
   nr_incydentu   NUMBER(3),
-  kocur          REF CZLONEK_ELITY,
+  ofiara         REF KOCUR,
   imie_wroga     VARCHAR2(15), 
   data_incydentu DATE,
   opis_incydentu VARCHAR2(50),
@@ -207,7 +207,127 @@ END;
 
 CREATE TABLE incydenty OF INCYDENT (
   nr_incydentu       CONSTRAINT inc_pk PRIMARY KEY,
+  ofiara             SCOPE IS obj_kocury,
   imie_wroga         CONSTRAINT inc_wro_imie_wroga_fk REFERENCES wrogowie(imie_wroga),
   data_incydentu     CONSTRAINT inc_data_incydentu_nn NOT NULL
 );
 /
+
+
+CREATE OR REPLACE TRIGGER dodawanie_kocura_z_elity
+BEFORE INSERT ON elita
+FOR EACH ROW
+BEGIN
+    INSERT INTO obj_kocury(imie, plec, pseudo, szef, funkcja, w_stadku_od, przydzial_myszy, myszy_extra, nr_bandy)
+    VALUES (:NEW.imie, :NEW.plec, :NEW.pseudo, :NEW.szef, :NEW.funkcja, :NEW.w_stadku_od, :NEW.przydzial_myszy, :NEW.myszy_extra, :NEW.nr_bandy);
+END;
+/
+
+CREATE OR REPLACE TRIGGER modyfikowanie_kocura_z_elity
+AFTER UPDATE ON elita
+FOR EACH ROW
+BEGIN
+    UPDATE obj_kocury k
+       SET k.imie = :new.imie, k.plec = :new.plec, k.w_stadku_od = :new.w_stadku_od, k.przydzial_myszy = :new.przydzial_myszy,
+           myszy_extra = :new.myszy_extra, k.szef = :new.szef, k.funkcja = :new.funkcja, k.nr_bandy = :new.nr_bandy
+     WHERE pseudo = :new.pseudo;
+END;
+/
+
+CREATE OR REPLACE TRIGGER usuwanie_kocura_z_elity
+BEFORE DELETE ON elita
+FOR EACH ROW
+BEGIN
+    DELETE FROM obj_kocury k
+     WHERE k.pseudo = :old.pseudo;
+END;
+/
+
+CREATE OR REPLACE TRIGGER dodawanie_kocura_z_plebsu
+BEFORE INSERT ON plebs
+FOR EACH ROW
+BEGIN
+    INSERT INTO obj_kocury(imie, plec, pseudo, szef, funkcja, w_stadku_od, przydzial_myszy, myszy_extra, nr_bandy)
+    VALUES (:NEW.imie, :NEW.plec, :NEW.pseudo, :NEW.szef, :NEW.funkcja, :NEW.w_stadku_od, :NEW.przydzial_myszy, :NEW.myszy_extra, :NEW.nr_bandy);
+END;
+/
+
+CREATE OR REPLACE TRIGGER modyfikowanie_kocura_z_plebsu
+AFTER UPDATE ON plebs
+FOR EACH ROW
+BEGIN
+    UPDATE obj_kocury k
+       SET k.imie = :new.imie, k.plec = :new.plec, k.w_stadku_od = :new.w_stadku_od, k.przydzial_myszy = :new.przydzial_myszy,
+           myszy_extra = :new.myszy_extra, k.szef = :new.szef, k.funkcja = :new.funkcja, k.nr_bandy = :new.nr_bandy
+     WHERE pseudo = :new.pseudo;
+END;
+/
+
+CREATE OR REPLACE TRIGGER usuwanie_kocura_z_plebsu
+BEFORE DELETE ON plebs
+FOR EACH ROW
+BEGIN
+    DELETE FROM obj_kocury k
+     WHERE k.pseudo = :old.pseudo;
+END;
+/
+
+
+INSERT ALL
+  INTO plebs VALUES (CZLONEK_PLEBSU('ZUZIA',   'D', 'SZYBKA',   'LOWCZY',   (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'LYSY'),   '2006-07-21', 65, NULL, 2))
+  INTO plebs VALUES (CZLONEK_PLEBSU('CHYTRY',  'M', 'BOLEK',    'DZIELCZY', (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'), '2002-05-05', 50, NULL, 1))
+  INTO plebs VALUES (CZLONEK_PLEBSU('BELA',    'D', 'LASKA',    'MILUSIA',  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'LYSY'),   '2008-02-01', 24, 28,   2))
+  INTO plebs VALUES (CZLONEK_PLEBSU('KSAWERY', 'M', 'MAN',      'LAPACZ',   (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'RAFA'),   '2008-07-12', 51, NULL, 4))
+  INTO plebs VALUES (CZLONEK_PLEBSU('MELA',    'D', 'DAMA',     'LAPACZ',   (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'RAFA'),   '2008-11-01', 51, NULL, 4))
+  INTO plebs VALUES (CZLONEK_PLEBSU('JACEK',   'M', 'PLACEK',   'LOWCZY',   (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'LYSY'),   '2008-12-01', 67, NULL, 2))
+  INTO plebs VALUES (CZLONEK_PLEBSU('BARI',    'M', 'RURA',     'LAPACZ',   (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'LYSY'),   '2009-09-01', 56, NULL, 2))
+  INTO plebs VALUES (CZLONEK_PLEBSU('LUCEK',   'M', 'ZERO',     'KOT',      (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'KURKA'),  '2010-03-01', 43, NULL, 3))
+  INTO plebs VALUES (CZLONEK_PLEBSU('SONIA',   'D', 'PUSZYSTA', 'MILUSIA',  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'ZOMBI'),  '2010-11-18', 20, 35,   3))
+  INTO plebs VALUES (CZLONEK_PLEBSU('LATKA',   'D', 'UCHO',     'KOT',      (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'RAFA'),   '2011-01-01', 40, NULL, 4))
+  INTO plebs VALUES (CZLONEK_PLEBSU('DUDEK',   'M', 'MALY',     'KOT',      (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'RAFA'),   '2011-05-15', 40, NULL, 4))
+  INTO plebs VALUES (CZLONEK_PLEBSU('RUDA',    'D', 'MALA',     'MILUSIA',  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'), '2006-09-17', 22, 42,   1))
+SELECT * FROM DUAL;
+
+INSERT ALL
+  INTO elita VALUES (CZLONEK_ELITY('MRUCZEK', 'M', 'TYGRYS',   'SZEFUNIO', NULL,                                                        '2002-01-01', 103, 33,  1, (SELECT REF(p) FROM plebs p WHERE p.pseudo = 'DAMA')))
+  INTO elita VALUES (CZLONEK_ELITY('MICKA',   'D', 'LOLA',     'MILUSIA',  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'), '2009-10-14', 25, 47,   1, (SELECT REF(p) FROM plebs p WHERE p.pseudo = 'PUSZYSTA')))
+  INTO elita VALUES (CZLONEK_ELITY('KOREK',   'M', 'ZOMBI',    'BANDZIOR', (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'), '2004-03-16', 75, 13,   3, (SELECT REF(p) FROM plebs p WHERE p.pseudo = 'MAN')))
+  INTO elita VALUES (CZLONEK_ELITY('BOLEK',   'M', 'LYSY',     'BANDZIOR', (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'), '2006-08-15', 72, 21,   2, (SELECT REF(p) FROM plebs p WHERE p.pseudo = 'SZYBKA')))
+  INTO elita VALUES (CZLONEK_ELITY('PUNIA',   'D', 'KURKA',    'LOWCZY',   (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'ZOMBI'),  '2008-01-01', 61, NULL, 3, (SELECT REF(p) FROM plebs p WHERE p.pseudo = 'UCHO')))
+  INTO elita VALUES (CZLONEK_ELITY('PUCEK',   'M', 'RAFA',     'LOWCZY',   (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'), '2006-10-15', 65, NULL, 4, (SELECT REF(p) FROM plebs p WHERE p.pseudo = 'RURA')))
+SELECT * FROM DUAL;
+
+INSERT ALL
+  INTO konta VALUES (KONTO(0,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'TYGRYS'), SYSDATE, NULL))
+  INTO konta VALUES (KONTO(1,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'LOLA'),   SYSDATE, NULL))
+  INTO konta VALUES (KONTO(2,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'ZOMBI'),  SYSDATE, NULL))
+  INTO konta VALUES (KONTO(3,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'LYSY'),   SYSDATE, NULL))
+  INTO konta VALUES (KONTO(4,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'KURKA'),  SYSDATE, NULL))
+  INTO konta VALUES (KONTO(5,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'RAFA'),   SYSDATE, NULL))
+  INTO konta VALUES (KONTO(6,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'LOLA'),   SYSDATE, NULL))
+  INTO konta VALUES (KONTO(7,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'ZOMBI'),  SYSDATE, NULL))
+  INTO konta VALUES (KONTO(8,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'LOLA'),   SYSDATE, NULL))
+  INTO konta VALUES (KONTO(9,  (SELECT REF(e) FROM elita e WHERE e.pseudo = 'KURKA'),  SYSDATE, NULL))
+  INTO konta VALUES (KONTO(10, (SELECT REF(e) FROM elita e WHERE e.pseudo = 'LOLA'),   SYSDATE, NULL))
+SELECT * FROM DUAL;
+
+INSERT ALL
+  INTO incydenty VALUES (INCYDENT(0,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'),   'KAZIO',          '2004-10-13', 'USILOWAL NABIC NA WIDLY'                  ))
+  INTO incydenty VALUES (INCYDENT(1,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'ZOMBI'),    'SWAWOLNY DYZIO', '2005-03-07', 'WYBIL OKO Z PROCY'                        ))
+  INTO incydenty VALUES (INCYDENT(2,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'BOLEK'),    'KAZIO',          '2005-03-29', 'POSZCZUL BURKIEM'                         ))
+  INTO incydenty VALUES (INCYDENT(3,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'SZYBKA'),   'GLUPIA ZOSKA',   '2006-09-12', 'UZYLA KOTA JAKO SCIERKI'                  ))
+  INTO incydenty VALUES (INCYDENT(4,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'MALA'),     'CHYTRUSEK',      '2007-03-07', 'ZALECAL SIE'                              ))
+  INTO incydenty VALUES (INCYDENT(5,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'),   'DZIKI BILL',     '2007-06-12', 'USILOWAL POZBAWIC ZYCIA'                  ))
+  INTO incydenty VALUES (INCYDENT(6,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'BOLEK'),    'DZIKI BILL',     '2007-11-10', 'ODGRYZL UCHO'                             ))
+  INTO incydenty VALUES (INCYDENT(7,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'LASKA'),    'DZIKI BILL',     '2008-12-12', 'POGRYZL ZE LEDWO SIE WYLIZALA'            ))
+  INTO incydenty VALUES (INCYDENT(8,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'LASKA'),    'KAZIO',          '2009-01-07', 'ZLAPAL ZA OGON I ZROBIL WIATRAK'          ))
+  INTO incydenty VALUES (INCYDENT(9,  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'DAMA'),     'KAZIO',          '2009-02-07', 'CHCIAL OBEDRZEC ZE SKORY'                 ))
+  INTO incydenty VALUES (INCYDENT(10, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'MAN'),      'REKSIO',         '2009-04-14', 'WYJATKOWO NIEGRZECZNIE OBSZCZEKAL'        ))
+  INTO incydenty VALUES (INCYDENT(11, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'LYSY'),     'BETHOVEN',       '2009-05-11', 'NIE PODZIELIL SIE SWOJA KASZA'            ))
+  INTO incydenty VALUES (INCYDENT(12, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'RURA'),     'DZIKI BILL',     '2009-09-03', 'ODGRYZL OGON'                             ))
+  INTO incydenty VALUES (INCYDENT(13, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'PLACEK'),   'BAZYLI',         '2010-07-12', 'DZIOBIAC UNIEMOZLIWIL PODEBRANIE KURCZAKA'))
+  INTO incydenty VALUES (INCYDENT(14, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'PUSZYSTA'), 'SMUKLA',         '2010-11-19', 'OBRZUCILA SZYSZKAMI'                      ))
+  INTO incydenty VALUES (INCYDENT(15, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'KURKA'),    'BUREK',          '2010-12-14', 'POGONIL'                                  ))
+  INTO incydenty VALUES (INCYDENT(16, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'MALY'),     'CHYTRUSEK',      '2011-07-13', 'PODEBRAL PODEBRANE JAJKA'                 ))
+  INTO incydenty VALUES (INCYDENT(17, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'UCHO'),     'SWAWOLNY DYZIO', '2011-07-14', 'OBRZUCIL KAMIENIAMI'                      ))
+SELECT * FROM DUAL;
