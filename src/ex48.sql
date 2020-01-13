@@ -39,7 +39,7 @@ CREATE TABLE elita (
   nr_bandy        NUMBER(3)
                   CONSTRAINT eli_ban_nr_bandy_fk REFERENCES bandy(nr_bandy),
   sluga           VARCHAR2(15)
-                  CONSTRAINT eli_ple_pseudo_fk REFERENCES plebs(pseudo),
+                  CONSTRAINT eli_ple_pseudo_fk REFERENCES plebs(pseudo)
 );
 
 CREATE TABLE konta (
@@ -73,23 +73,23 @@ INSERT ALL
   INTO elita VALUES ('MRUCZEK', 'M', 'TYGRYS',   'SZEFUNIO', NULL,     '2002-01-01', 103, 33,   1, 'DAMA'    )
   INTO elita VALUES ('MICKA',   'D', 'LOLA',     'MILUSIA',  'TYGRYS', '2009-10-14', 25,  47,   1, 'PUSZYSTA')
   INTO elita VALUES ('KOREK',   'M', 'ZOMBI',    'BANDZIOR', 'TYGRYS', '2004-03-16', 75,  13,   3, 'MAN'     )
-  INTO elita VALUES ('BOLEK',   'M', 'LYSY',     'BANDZIOR', 'TYGRYS', '2006-08-15', 72,  21,   2, 'SZYBKA  ')
+  INTO elita VALUES ('BOLEK',   'M', 'LYSY',     'BANDZIOR', 'TYGRYS', '2006-08-15', 72,  21,   2, 'SZYBKA'  )
   INTO elita VALUES ('PUNIA',   'D', 'KURKA',    'LOWCZY',   'ZOMBI',  '2008-01-01', 61,  NULL, 3, 'UCHO'    )
   INTO elita VALUES ('PUCEK',   'M', 'RAFA',     'LOWCZY',   'TYGRYS', '2006-10-15', 65,  NULL, 4, 'RURA'    )
 SELECT * FROM DUAL;
 
 INSERT ALL
-  INTO konta VALUES (0,  'TYGRYS', SYSDATE, NULL);
-  INTO konta VALUES (1,  'LOLA',   SYSDATE, NULL);
-  INTO konta VALUES (2,  'ZOMBI',  SYSDATE, NULL);
-  INTO konta VALUES (3,  'LYSY',   SYSDATE, NULL);
-  INTO konta VALUES (4,  'KURKA',  SYSDATE, NULL);
-  INTO konta VALUES (5,  'RAFA',   SYSDATE, NULL);
-  INTO konta VALUES (6,  'LOLA',   SYSDATE, NULL);
-  INTO konta VALUES (7,  'ZOMBI',  SYSDATE, NULL);
-  INTO konta VALUES (8,  'LOLA',   SYSDATE, NULL);
-  INTO konta VALUES (9,  'KURKA',  SYSDATE, NULL);
-  INTO konta VALUES (10, 'LOLA',   SYSDATE, NULL);
+  INTO konta VALUES (0,  'TYGRYS', SYSDATE, NULL)
+  INTO konta VALUES (1,  'LOLA',   SYSDATE, NULL)
+  INTO konta VALUES (2,  'ZOMBI',  SYSDATE, NULL)
+  INTO konta VALUES (3,  'LYSY',   SYSDATE, NULL)
+  INTO konta VALUES (4,  'KURKA',  SYSDATE, NULL)
+  INTO konta VALUES (5,  'RAFA',   SYSDATE, NULL)
+  INTO konta VALUES (6,  'LOLA',   SYSDATE, NULL)
+  INTO konta VALUES (7,  'ZOMBI',  SYSDATE, NULL)
+  INTO konta VALUES (8,  'LOLA',   SYSDATE, NULL)
+  INTO konta VALUES (9,  'KURKA',  SYSDATE, NULL)
+  INTO konta VALUES (10, 'LOLA',   SYSDATE, NULL)
 SELECT * FROM DUAL;
 
 
@@ -144,15 +144,103 @@ SELECT nr_konta,
 CREATE OR REPLACE VIEW oid_incydenty OF INCYDENT
   WITH OBJECT IDENTIFIER (nr_incydentu) AS
 SELECT ROW_NUMBER() OVER (ORDER BY data_incydentu) nr_incydentu,
-       MAKE_REF(oid_kocury, ofiara) ofiara,
+       MAKE_REF(oid_kocury, pseudo) ofiara,
        imie_wroga,
        data_incydentu,
        opis_incydentu
   FROM wrogowie_kocurow;
 
 
+SELECT DEREF(k.wlasciciel).nazwa() "Kocur", COUNT(*) "Myszy na koncie"
+  FROM oid_konta k
+ WHERE k.data_usuniecia_myszy IS NULL
+ GROUP BY DEREF(k.wlasciciel).nazwa()
+ ORDER BY COUNT(*) DESC;
+
+SELECT k.imie "IMIE"
+  FROM oid_kocury k
+ WHERE k.przydzial_myszy > (SELECT AVG(k2.przydzial_myszy)
+                              FROM oid_kocury k2);
+
+-- ex18.sql
 SELECT k.imie "IMIE", k.w_stadku_od "POLUJE OD"
   FROM oid_kocury k, oid_kocury k2
  WHERE k2.imie = 'JACEK'
    AND k.w_stadku_od < k2.w_stadku_od
  ORDER BY k.w_stadku_od DESC;
+
+-- ex23.sql
+SELECT imie AS "IMIE", k.zjada_razem() * 12 AS "DAWKA ROCZNA", 'powyzej 864' AS "DAWKA"
+  FROM oid_kocury k
+ WHERE k.zjada_razem() * 12 > 864
+   AND k.myszy_extra IS NOT NULL
+ 
+ UNION ALL
+ 
+SELECT imie AS "IMIE", k.zjada_razem() * 12 AS "DAWKA ROCZNA", '864' AS "DAWKA"
+  FROM oid_kocury k
+ WHERE k.zjada_razem() * 12 = 864
+   AND myszy_extra IS NOT NULL
+ 
+ UNION ALL
+ 
+SELECT imie AS "IMIE", k.zjada_razem() * 12 AS "DAWKA ROCZNA", 'ponizej 864' AS "DAWKA"
+  FROM oid_kocury k
+ WHERE k.zjada_razem() * 12 < 864
+   AND myszy_extra IS NOT NULL
+ ORDER BY "DAWKA ROCZNA" DESC;
+
+-- ex35.sql
+DECLARE
+  wybrany_pseudonim kocury.pseudo%TYPE := '&pseudonim';
+  imie kocury.imie%TYPE;
+  przydzial_myszy NUMBER;
+  miesiac NUMBER;
+BEGIN
+  SELECT k.imie, k.zjada_razem() * 12, EXTRACT(MONTH FROM w_stadku_od)
+    INTO imie, przydzial_myszy, miesiac
+    FROM oid_kocury k
+   WHERE k.pseudo = UPPER(wybrany_pseudonim);
+
+  IF przydzial_myszy > 700 THEN
+    DBMS_OUTPUT.PUT_LINE(imie || ' calkowity roczny przydzial myszy > 700');
+  ELSIF imie LIKE '%A%' THEN
+    DBMS_OUTPUT.PUT_LINE(imie || ' imie zawiera litere A');
+  ELSIF miesiac = 1 THEN
+    DBMS_OUTPUT.PUT_LINE(imie || ' styczen jest miesiacem przystapienia do stada');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE(imie || ' nie odpowiada kryteriom');
+  END IF;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Nie znaleziono takiego kota');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;
+
+-- ex37.sql
+DECLARE
+  i NUMBER := 0;
+  BRAK_KOTOW EXCEPTION;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Nr  Psedonim   Zjada');
+  DBMS_OUTPUT.PUT_LINE('--------------------');
+
+  FOR kocur IN (SELECT k.pseudo, k.zjada_razem() zjada
+                  FROM oid_kocury k
+                 ORDER BY zjada DESC)
+  LOOP
+    i := i + 1;
+    DBMS_OUTPUT.PUT_LINE(RPAD(i, 3) || ' ' || RPAD(kocur.pseudo, 9) || ' ' || LPAD(kocur.zjada, 6));
+    EXIT WHEN i >= 5;
+  END LOOP;
+
+  IF i = 0 THEN
+    RAISE BRAK_KOTOW;
+  END IF;
+EXCEPTION
+  WHEN BRAK_KOTOW THEN
+    DBMS_OUTPUT.PUT_LINE('Brak kotow');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;
