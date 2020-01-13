@@ -214,12 +214,13 @@ CREATE TABLE incydenty OF INCYDENT (
 /
 
 
+-- sync triggers
 CREATE OR REPLACE TRIGGER dodawanie_kocura_z_elity
 BEFORE INSERT ON elita
 FOR EACH ROW
 BEGIN
-    INSERT INTO obj_kocury(imie, plec, pseudo, szef, funkcja, w_stadku_od, przydzial_myszy, myszy_extra, nr_bandy)
-    VALUES (:NEW.imie, :NEW.plec, :NEW.pseudo, :NEW.szef, :NEW.funkcja, :NEW.w_stadku_od, :NEW.przydzial_myszy, :NEW.myszy_extra, :NEW.nr_bandy);
+  INSERT INTO obj_kocury(imie, plec, pseudo, szef, funkcja, w_stadku_od, przydzial_myszy, myszy_extra, nr_bandy)
+  VALUES (:NEW.imie, :NEW.plec, :NEW.pseudo, :NEW.szef, :NEW.funkcja, :NEW.w_stadku_od, :NEW.przydzial_myszy, :NEW.myszy_extra, :NEW.nr_bandy);
 END;
 /
 
@@ -227,10 +228,10 @@ CREATE OR REPLACE TRIGGER modyfikowanie_kocura_z_elity
 AFTER UPDATE ON elita
 FOR EACH ROW
 BEGIN
-    UPDATE obj_kocury k
-       SET k.imie = :new.imie, k.plec = :new.plec, k.w_stadku_od = :new.w_stadku_od, k.przydzial_myszy = :new.przydzial_myszy,
-           myszy_extra = :new.myszy_extra, k.szef = :new.szef, k.funkcja = :new.funkcja, k.nr_bandy = :new.nr_bandy
-     WHERE pseudo = :new.pseudo;
+  UPDATE obj_kocury k
+     SET k.imie = :NEW.imie, k.plec = :NEW.plec, k.w_stadku_od = :NEW.w_stadku_od, k.przydzial_myszy = :NEW.przydzial_myszy,
+         myszy_extra = :NEW.myszy_extra, k.szef = :NEW.szef, k.funkcja = :NEW.funkcja, k.nr_bandy = :NEW.nr_bandy
+   WHERE pseudo = :NEW.pseudo;
 END;
 /
 
@@ -238,8 +239,8 @@ CREATE OR REPLACE TRIGGER usuwanie_kocura_z_elity
 BEFORE DELETE ON elita
 FOR EACH ROW
 BEGIN
-    DELETE FROM obj_kocury k
-     WHERE k.pseudo = :old.pseudo;
+  DELETE FROM obj_kocury k
+   WHERE k.pseudo = :old.pseudo;
 END;
 /
 
@@ -247,8 +248,8 @@ CREATE OR REPLACE TRIGGER dodawanie_kocura_z_plebsu
 BEFORE INSERT ON plebs
 FOR EACH ROW
 BEGIN
-    INSERT INTO obj_kocury(imie, plec, pseudo, szef, funkcja, w_stadku_od, przydzial_myszy, myszy_extra, nr_bandy)
-    VALUES (:NEW.imie, :NEW.plec, :NEW.pseudo, :NEW.szef, :NEW.funkcja, :NEW.w_stadku_od, :NEW.przydzial_myszy, :NEW.myszy_extra, :NEW.nr_bandy);
+  INSERT INTO obj_kocury(imie, plec, pseudo, szef, funkcja, w_stadku_od, przydzial_myszy, myszy_extra, nr_bandy)
+  VALUES (:NEW.imie, :NEW.plec, :NEW.pseudo, :NEW.szef, :NEW.funkcja, :NEW.w_stadku_od, :NEW.przydzial_myszy, :NEW.myszy_extra, :NEW.nr_bandy);
 END;
 /
 
@@ -256,10 +257,10 @@ CREATE OR REPLACE TRIGGER modyfikowanie_kocura_z_plebsu
 AFTER UPDATE ON plebs
 FOR EACH ROW
 BEGIN
-    UPDATE obj_kocury k
-       SET k.imie = :new.imie, k.plec = :new.plec, k.w_stadku_od = :new.w_stadku_od, k.przydzial_myszy = :new.przydzial_myszy,
-           myszy_extra = :new.myszy_extra, k.szef = :new.szef, k.funkcja = :new.funkcja, k.nr_bandy = :new.nr_bandy
-     WHERE pseudo = :new.pseudo;
+  UPDATE obj_kocury k
+     SET k.imie = :NEW.imie, k.plec = :NEW.plec, k.w_stadku_od = :NEW.w_stadku_od, k.przydzial_myszy = :NEW.przydzial_myszy,
+         myszy_extra = :NEW.myszy_extra, k.szef = :NEW.szef, k.funkcja = :NEW.funkcja, k.nr_bandy = :NEW.nr_bandy
+   WHERE pseudo = :NEW.pseudo;
 END;
 /
 
@@ -267,11 +268,28 @@ CREATE OR REPLACE TRIGGER usuwanie_kocura_z_plebsu
 BEFORE DELETE ON plebs
 FOR EACH ROW
 BEGIN
-    DELETE FROM obj_kocury k
-     WHERE k.pseudo = :old.pseudo;
+  DELETE FROM obj_kocury k
+   WHERE k.pseudo = :old.pseudo;
 END;
 /
 
+-- uniqueness triggers
+CREATE OR REPLACE TRIGGER unikalna_para_wrog_kocur
+BEFORE INSERT OR UPDATE ON incydenty
+FOR EACH ROW
+DECLARE
+  tmp NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO tmp
+    FROM incydenty i
+   WHERE i.ofiara = :NEW.ofiara
+     AND i.imie_wroga = :NEW.imie_wroga;
+
+  IF tmp > 0 THEN
+    RAISE_APPLICATION_ERROR(-20001, 'Naruszono więzy unikatowe');
+  END IF;
+END;
+/
 
 INSERT INTO elita VALUES (CZLONEK_ELITY('MRUCZEK', 'M', 'TYGRYS',   'SZEFUNIO', NULL,                                                        '2002-01-01', 103, 33,   1, NULL));
 INSERT INTO elita VALUES (CZLONEK_ELITY('MICKA',   'D', 'LOLA',     'MILUSIA',  (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'TYGRYS'), '2009-10-14', 25,  47,   1, NULL));
