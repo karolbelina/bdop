@@ -11,7 +11,7 @@ BEGIN
   LOOP
     i := i + 1;
     DBMS_OUTPUT.PUT_LINE(RPAD(i, 3) || ' ' || RPAD(kocur.pseudo, 9) || ' ' || LPAD(kocur.zjada, 6));
-    EXIT WHEN i > 5;
+    EXIT WHEN i >= 5;
   END LOOP;
 
   IF i = 0 THEN
