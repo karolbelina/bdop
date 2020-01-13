@@ -28,7 +28,7 @@ CREATE OR REPLACE TYPE KOCUR AS OBJECT (
 
   MAP MEMBER FUNCTION porownaj_po_pseudo RETURN VARCHAR2,
   MEMBER FUNCTION nazwa RETURN VARCHAR2,
-  MEMBER FUNCTION dochod_myszowy RETURN NUMBER,
+  MEMBER FUNCTION zjada_razem RETURN NUMBER,
   MEMBER FUNCTION ile_miesiecy_w_stadku RETURN NUMBER
 ) NOT FINAL;
 /
@@ -47,7 +47,7 @@ AS
     RETURN imie || ' (' || pseudo || ')';
   END;
 
-  MEMBER FUNCTION dochod_myszowy RETURN NUMBER
+  MEMBER FUNCTION zjada_razem RETURN NUMBER
   IS
   BEGIN
     RETURN NVL(przydzial_myszy, 0) + NVL(myszy_extra, 0);
@@ -330,3 +330,98 @@ INSERT INTO incydenty VALUES (INCYDENT(14, (SELECT REF(k) FROM obj_kocury k WHER
 INSERT INTO incydenty VALUES (INCYDENT(15, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'KURKA'   ), 'BUREK',          '2010-12-14', 'POGONIL'                                  ));
 INSERT INTO incydenty VALUES (INCYDENT(16, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'MALY'    ), 'CHYTRUSEK',      '2011-07-13', 'PODEBRAL PODEBRANE JAJKA'                 ));
 INSERT INTO incydenty VALUES (INCYDENT(17, (SELECT REF(k) FROM obj_kocury k WHERE k.pseudo = 'UCHO'    ), 'SWAWOLNY DYZIO', '2011-07-14', 'OBRZUCIL KAMIENIAMI'                      ));
+
+
+SELECT DEREF(k.wlasciciel).nazwa() "Kocur", COUNT(*) "Myszy na koncie"
+  FROM konta k
+ WHERE k.data_usuniecia_myszy IS NULL
+ GROUP BY DEREF(k.wlasciciel).nazwa()
+ ORDER BY COUNT(*) DESC;
+
+SELECT k.imie "IMIE"
+  FROM obj_kocury k
+ WHERE k.przydzial_myszy > (SELECT AVG(k2.przydzial_myszy)
+                              FROM obj_kocury k2);
+
+-- ex18.sql
+SELECT k.imie "IMIE", k.w_stadku_od "POLUJE OD"
+  FROM obj_kocury k, obj_kocury k2
+ WHERE k2.imie = 'JACEK'
+   AND k.w_stadku_od < k2.w_stadku_od
+ ORDER BY k.w_stadku_od DESC;
+
+-- ex23.sql
+SELECT imie AS "IMIE", k.zjada_razem() * 12 AS "DAWKA ROCZNA", 'powyzej 864' AS "DAWKA"
+  FROM obj_kocury k
+ WHERE k.zjada_razem() * 12 > 864
+   AND k.myszy_extra IS NOT NULL
+ 
+ UNION ALL
+ 
+SELECT imie AS "IMIE", k.zjada_razem() * 12 AS "DAWKA ROCZNA", '864' AS "DAWKA"
+  FROM kocury
+ WHERE k.zjada_razem() * 12 = 864
+   AND myszy_extra IS NOT NULL
+ 
+ UNION ALL
+ 
+SELECT imie AS "IMIE", k.zjada_razem() * 12 AS "DAWKA ROCZNA", 'ponizej 864' AS "DAWKA"
+  FROM kocury
+ WHERE k.zjada_razem() * 12 < 864
+   AND myszy_extra IS NOT NULL
+ ORDER BY "DAWKA ROCZNA" DESC;
+
+-- ex35.sql
+DECLARE
+  wybrany_pseudonim kocury.pseudo%TYPE := '&pseudonim';
+  imie kocury.imie%TYPE;
+  przydzial_myszy NUMBER;
+  miesiac NUMBER;
+BEGIN
+  SELECT k.imie, k.zjada_razem() * 12, EXTRACT(MONTH FROM w_stadku_od)
+    INTO imie, przydzial_myszy, miesiac
+    FROM obj_kocury k
+   WHERE k.pseudo = UPPER(wybrany_pseudonim);
+
+  IF przydzial_myszy > 700 THEN
+    DBMS_OUTPUT.PUT_LINE(imie || ' calkowity roczny przydzial myszy > 700');
+  ELSIF imie LIKE '%A%' THEN
+    DBMS_OUTPUT.PUT_LINE(imie || ' imie zawiera litere A');
+  ELSIF miesiac = 1 THEN
+    DBMS_OUTPUT.PUT_LINE(imie || ' styczen jest miesiacem przystapienia do stada');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE(imie || ' nie odpowiada kryteriom');
+  END IF;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Nie znaleziono takiego kota');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;
+
+-- ex37.sql
+DECLARE
+  i NUMBER := 0;
+  BRAK_KOTOW EXCEPTION;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Nr  Psedonim   Zjada');
+  DBMS_OUTPUT.PUT_LINE('--------------------');
+
+  FOR kocur IN (SELECT k.pseudo, k.zjada_razem() zjada
+                  FROM obj_kocury k
+                 ORDER BY zjada DESC)
+  LOOP
+    i := i + 1;
+    DBMS_OUTPUT.PUT_LINE(RPAD(i, 3) || ' ' || RPAD(kocur.pseudo, 9) || ' ' || LPAD(kocur.zjada, 6));
+    EXIT WHEN i >= 5;
+  END LOOP;
+
+  IF i = 0 THEN
+    RAISE BRAK_KOTOW;
+  END IF;
+EXCEPTION
+  WHEN BRAK_KOTOW THEN
+    DBMS_OUTPUT.PUT_LINE('Brak kotow');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;
