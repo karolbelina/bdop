@@ -98,13 +98,13 @@ END;
 /
 
 CREATE TABLE obj_plebs OF CZLONEK_PLEBSU (
-  imie        CONSTRAINT ple_imie_nn NOT NULL,
-  plec        CONSTRAINT ple_plec_ch CHECK(plec IN ('M', 'D')),
-  pseudo      CONSTRAINT ple_pk PRIMARY KEY,
-  funkcja     CONSTRAINT ple_fun_funkcja_fk REFERENCES funkcje(funkcja),
+  imie        CONSTRAINT opl_imie_nn NOT NULL,
+  plec        CONSTRAINT opl_plec_ch CHECK(plec IN ('M', 'D')),
+  pseudo      CONSTRAINT opl_pk PRIMARY KEY,
+  funkcja     CONSTRAINT opl_fun_funkcja_fk REFERENCES funkcje(funkcja),
   szef        SCOPE IS obj_kocury,
   w_stadku_od DEFAULT SYSDATE,
-  nr_bandy    CONSTRAINT ple_ban_nr_bandy_fk REFERENCES bandy(nr_bandy)
+  nr_bandy    CONSTRAINT opl_ban_nr_bandy_fk REFERENCES bandy(nr_bandy)
 );
 /
 
@@ -134,13 +134,13 @@ END;
 /
 
 CREATE TABLE obj_elita OF CZLONEK_ELITY (
-  imie        CONSTRAINT eli_imie_nn NOT NULL,
-  plec        CONSTRAINT eli_plec_ch CHECK(plec IN ('M', 'D')),
-  pseudo      CONSTRAINT eli_pk PRIMARY KEY,
-  funkcja     CONSTRAINT eli_fun_funkcja_fk REFERENCES funkcje(funkcja),
+  imie        CONSTRAINT oel_imie_nn NOT NULL,
+  plec        CONSTRAINT oel_plec_ch CHECK(plec IN ('M', 'D')),
+  pseudo      CONSTRAINT oel_pk PRIMARY KEY,
+  funkcja     CONSTRAINT oel_fun_funkcja_fk REFERENCES funkcje(funkcja),
   szef        SCOPE IS obj_kocury,
   w_stadku_od DEFAULT SYSDATE,
-  nr_bandy    CONSTRAINT eli_ban_nr_bandy_fk REFERENCES bandy(nr_bandy),
+  nr_bandy    CONSTRAINT oel_ban_nr_bandy_fk REFERENCES bandy(nr_bandy),
   sluga       SCOPE IS obj_plebs
 );
 /
@@ -176,11 +176,11 @@ END;
 /
 
 CREATE TABLE obj_konta OF KONTO (
-  nr_konta           CONSTRAINT kon_pk PRIMARY KEY,
+  nr_konta           CONSTRAINT okn_pk PRIMARY KEY,
   wlasciciel         SCOPE IS obj_elita
-                     CONSTRAINT kon_wlasciciel_nn NOT NULL,
-  data_dodania_myszy CONSTRAINT kon_data_dodania_myszy_nn NOT NULL,
-  CONSTRAINT kon_dates_ch CHECK(data_usuniecia_myszy >= data_dodania_myszy)
+                     CONSTRAINT okn_wlasciciel_nn NOT NULL,
+  data_dodania_myszy CONSTRAINT okn_data_dodania_myszy_nn NOT NULL,
+  CONSTRAINT okn_dates_ch CHECK(data_usuniecia_myszy >= data_dodania_myszy)
 );
 /
 
@@ -206,10 +206,10 @@ END;
 /
 
 CREATE TABLE obj_incydenty OF INCYDENT (
-  nr_incydentu       CONSTRAINT inc_pk PRIMARY KEY,
+  nr_incydentu       CONSTRAINT oin_pk PRIMARY KEY,
   ofiara             SCOPE IS obj_kocury,
-  imie_wroga         CONSTRAINT inc_wro_imie_wroga_fk REFERENCES wrogowie(imie_wroga),
-  data_incydentu     CONSTRAINT inc_data_incydentu_nn NOT NULL
+  imie_wroga         CONSTRAINT oin_wro_imie_wroga_fk REFERENCES wrogowie(imie_wroga),
+  data_incydentu     CONSTRAINT oin_data_incydentu_nn NOT NULL
 );
 /
 
