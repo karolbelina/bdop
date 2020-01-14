@@ -73,7 +73,7 @@ BEGIN
   sroda := kiedy;
   DBMS_RANDOM.INITIALIZE(19254);
 
-  WHILE kiedy <= '2019-01-19'
+  WHILE kiedy <= '2020-01-19'
   LOOP
     SELECT EXTRACT(MONTH FROM kiedy)
       INTO miesiac
